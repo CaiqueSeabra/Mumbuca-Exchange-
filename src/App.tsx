@@ -144,7 +144,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
 
           <div className="w-full flex justify-center items-center min-h-[90px] my-2">
              <img 
-               src="/logo1.png" 
+               src="./logo1.png" 
                alt="Brasão de Maricá" 
                className="w-[60%] max-w-[200px] object-contain drop-shadow-[0_0_15px_rgba(255,0,0,0.3)]"
                onError={(e) => {
