@@ -1,8 +1,132 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Check, Calculator } from 'lucide-react';
+import { Copy, Check, Calculator, Mail, Lock } from 'lucide-react';
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  return (
+    <AnimatePresence mode="wait">
+      {!isLoggedIn ? (
+        <LoginScreen key="login" onLogin={() => setIsLoggedIn(true)} />
+      ) : (
+        <CalculatorScreen key="calculator" />
+      )}
+    </AnimatePresence>
+  );
+}
+
+function LoginScreen({ onLogin }: { onLogin: () => void }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.toLowerCase().includes('gmail.com') && !email.toLowerCase().includes('google')) {
+      setError('Por favor, use um e-mail do Google.');
+      return;
+    }
+    if (password.length >= 4) {
+      onLogin();
+    } else {
+      setError('A senha deve ter pelo menos 4 caracteres.');
+    }
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 1.05 }}
+      transition={{ duration: 0.3 }}
+      className="fixed inset-0 flex items-center justify-center p-4 font-sans select-none overflow-hidden touch-none" 
+      style={{ background: 'radial-gradient(circle, #330000, #000000)' }}
+    >
+      <div className="w-full h-full max-h-[700px] max-w-[380px] p-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-[30px] shadow-[0_0_20px_rgba(255,0,0,0.5)] flex flex-col items-center text-center text-white relative">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-red-500/20 rounded-full blur-[50px] pointer-events-none"></div>
+
+        <div className="mt-8 mb-6 w-full flex justify-center relative z-10 flex-col items-center">
+          {/* Logo da Prefeitura / Mumbuca Exchange */}
+          <div className="w-full flex justify-center items-center min-h-[100px]">
+             {/* A imagem logo.png precisa ser colocada na pasta /public no GitHub */}
+             <img 
+               src="/logo1.png" 
+               alt="Prefeitura de Maricá - Mumbuca Exchange" 
+               className="w-[90%] max-w-[300px] object-contain drop-shadow-[0_0_15px_rgba(255,0,0,0.3)]" 
+               onError={(e) => {
+                 // Fallback estilizado caso a imagem ainda não tenha sido enviada
+                 e.currentTarget.style.display = 'none';
+                 const fallback = document.getElementById('logo-fallback');
+                 if (fallback) fallback.style.display = 'block';
+               }} 
+             />
+             <div id="logo-fallback" style={{ display: 'none' }} className="text-red-500 font-bold text-2xl uppercase tracking-widest text-center">
+                PREFEITURA DE MARICÁ<br/>
+                <span className="text-white text-xl">MUMBUCA EXCHANGE</span>
+             </div>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="w-full flex-1 flex flex-col relative z-10">
+          <div className="space-y-4 mb-4">
+            <div className="flex flex-col text-left">
+              <label className="text-[0.75rem] text-[#ffcccc] ml-2 mb-1 uppercase tracking-wide">E-mail Google</label>
+              <div className="flex items-center bg-[#1a0000]/50 border border-red-500/50 rounded-[15px] p-3 focus-within:ring-2 focus-within:ring-red-500/50 transition-all">
+                <Mail size={18} className="text-red-400 mr-3" />
+                <input 
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="seuemail@gmail.com"
+                  className="bg-transparent text-white text-[1rem] outline-none w-full"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col text-left">
+              <label className="text-[0.75rem] text-[#ffcccc] ml-2 mb-1 uppercase tracking-wide">Senha</label>
+              <div className="flex items-center bg-[#1a0000]/50 border border-red-500/50 rounded-[15px] p-3 focus-within:ring-2 focus-within:ring-red-500/50 transition-all">
+                <Lock size={18} className="text-red-400 mr-3" />
+                <input 
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="bg-transparent text-white text-[1rem] outline-none w-full"
+                  required
+                />
+              </div>
+            </div>
+            
+            {error && (
+              <motion.p 
+                initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
+                className="text-red-400 text-xs text-center mt-2 font-medium"
+              >
+                {error}
+              </motion.p>
+            )}
+          </div>
+
+          <button 
+            type="submit"
+            className="w-full mt-auto mb-2 bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-[15px] shadow-[0_0_15px_rgba(255,0,0,0.4)] transition-all active:scale-95 uppercase tracking-wider text-[0.95rem]"
+          >
+            Acessar Sistema
+          </button>
+        </form>
+
+        <div className="font-bold text-[0.65rem] tracking-[3px] text-red-500/60 uppercase relative z-10 py-2">
+          MARICÁ TECH SYSTEM
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function CalculatorScreen() {
   const [valorStr, setValorStr] = useState<string>('1150');
   // Substitui vírgula por ponto para parsing adequado do JS
   const valor = parseFloat(valorStr.replace(/\./g, '').replace(',', '.')) || 0;
@@ -27,7 +151,13 @@ export default function App() {
 
   return (
     // fixed, inset-0 evitam rolagem na webview, bom para app em tela cheia no touch
-    <div className="fixed inset-0 flex items-center justify-center p-4 font-sans select-none overflow-hidden touch-none" style={{ background: 'radial-gradient(circle, #330000, #000000)' }}>
+    <motion.div 
+      initial={{ opacity: 0, scale: 1.05 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+      className="fixed inset-0 flex items-center justify-center p-4 font-sans select-none overflow-hidden touch-none" 
+      style={{ background: 'radial-gradient(circle, #330000, #000000)' }}
+    >
       <div className="w-full h-full max-h-[700px] max-w-[380px] p-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-[30px] shadow-[0_0_20px_rgba(255,0,0,0.5)] flex flex-col items-center text-center text-white relative overflow-y-auto hide-scrollbar">
         
         {/* Glow */}
@@ -66,7 +196,7 @@ export default function App() {
           MARICÁ TECH SYSTEM
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -90,7 +220,8 @@ function OptionCard({ dia, taxa, valorTotal }: { dia: string, taxa: number, valo
   return (
     <motion.div 
       whileTap={{ scale: 0.98 }}
-      className="bg-red-500/5 border border-red-500/20 p-4 rounded-[16px] relative overflow-hidden backdrop-blur-sm group flex flex-col text-left"
+      className="bg-red-500/5 border border-red-500/20 p-4 rounded-[16px] relative overflow-hidden backdrop-blur-sm group flex flex-col text-left cursor-pointer"
+      onClick={handleCopy}
     >
       <div className="flex justify-between items-start mb-1">
         <span className="font-bold text-[#ff4d4d] text-[0.7rem] tracking-widest uppercase">
@@ -98,8 +229,7 @@ function OptionCard({ dia, taxa, valorTotal }: { dia: string, taxa: number, valo
         </span>
         
         <button 
-          onClick={handleCopy}
-          className="p-1.5 rounded-full bg-red-900/30 text-red-300 hover:bg-red-500/40 hover:text-white transition-colors active:scale-90"
+          className="p-1.5 rounded-full bg-red-900/30 text-red-300 hover:bg-red-500/40 hover:text-white transition-colors active:scale-90 pointer-events-none"
         >
           {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
         </button>
@@ -115,4 +245,5 @@ function OptionCard({ dia, taxa, valorTotal }: { dia: string, taxa: number, valo
     </motion.div>
   );
 }
+
 
