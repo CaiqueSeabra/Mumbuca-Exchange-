@@ -20,16 +20,33 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [view, setView] = useState<'login' | 'register' | 'forgot'>('login');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setSuccessMsg('');
+
     if (!email.toLowerCase().includes('gmail.com') && !email.toLowerCase().includes('google')) {
       setError('Por favor, use um e-mail do Google.');
       return;
     }
+
+    if (view === 'forgot') {
+      setSuccessMsg('Um e-mail de recuperação foi enviado!');
+      return;
+    }
+
     if (password.length >= 4) {
-      onLogin();
+      if (view === 'register') {
+        setSuccessMsg('Conta criada com sucesso! Faça login.');
+        setView('login');
+        setPassword('');
+      } else {
+        onLogin();
+      }
     } else {
       setError('A senha deve ter pelo menos 4 caracteres.');
     }
@@ -71,30 +88,39 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
               </div>
             </div>
 
-            <div className="flex flex-col text-left">
-              <label className="text-[0.75rem] text-[#ffcccc] ml-2 mb-1 uppercase tracking-wide">Senha</label>
-              <div className="flex items-center bg-[#1a0000]/50 border border-red-500/50 rounded-[15px] p-3 focus-within:ring-2 focus-within:ring-red-500/50 transition-all">
-                <Lock size={18} className="text-red-400 mr-3" />
-                <input 
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="bg-transparent text-white text-[1rem] outline-none w-full"
-                  required
-                />
-                <button 
-                  type="button" 
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-red-400 hover:text-red-300 ml-2 p-1"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+            {view !== 'forgot' && (
+              <div className="flex flex-col text-left">
+                <label className="text-[0.75rem] text-[#ffcccc] ml-2 mb-1 uppercase tracking-wide">Senha</label>
+                <div className="flex items-center bg-[#1a0000]/50 border border-red-500/50 rounded-[15px] p-3 focus-within:ring-2 focus-within:ring-red-500/50 transition-all">
+                  <Lock size={18} className="text-red-400 mr-3" />
+                  <input 
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="bg-transparent text-white text-[1rem] outline-none w-full"
+                    required
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-red-400 hover:text-red-300 ml-2 p-1"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
-              <div className="flex justify-between items-center mt-2 px-1">
-                <button type="button" className="text-red-400 text-[0.65rem] hover:text-red-300 uppercase font-semibold tracking-wider">Esqueceu a senha?</button>
-                <button type="button" className="text-red-400 text-[0.65rem] hover:text-red-300 uppercase font-semibold tracking-wider">Criar conta</button>
-              </div>
+            )}
+            
+            <div className="flex justify-between items-center mt-2 px-1">
+              {view === 'login' ? (
+                <>
+                  <button type="button" onClick={() => setView('forgot')} className="text-red-400 text-[0.65rem] hover:text-red-300 uppercase font-semibold tracking-wider p-1">Esqueceu a senha?</button>
+                  <button type="button" onClick={() => setView('register')} className="text-red-400 text-[0.65rem] hover:text-red-300 uppercase font-semibold tracking-wider p-1">Criar conta</button>
+                </>
+              ) : (
+                <button type="button" onClick={() => setView('login')} className="text-red-400 text-[0.65rem] hover:text-red-300 uppercase font-semibold tracking-wider p-1 w-full text-center">← Voltar para o Login</button>
+              )}
             </div>
             
             {error && (
@@ -103,6 +129,15 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
                 className="text-red-400 text-xs text-center mt-2 font-medium"
               >
                 {error}
+              </motion.p>
+            )}
+            
+            {successMsg && (
+              <motion.p 
+                initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
+                className="text-green-400 text-xs text-center mt-2 font-medium"
+              >
+                {successMsg}
               </motion.p>
             )}
           </div>
@@ -119,7 +154,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
             type="submit"
             className="w-full mt-auto mb-2 bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-[15px] shadow-[0_0_15px_rgba(255,0,0,0.4)] transition-all active:scale-95 uppercase tracking-wider text-[0.95rem]"
           >
-            Acessar Sistema
+            {view === 'login' ? 'ACESSAR SISTEMA' : view === 'register' ? 'CRIAR CONTA' : 'RECUPERAR SENHA'}
           </button>
         </form>
 
