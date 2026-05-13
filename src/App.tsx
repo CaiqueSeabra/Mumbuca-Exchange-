@@ -171,26 +171,28 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
 }
 
 function CalculatorScreen({ onLogout }: { onLogout: () => void }) {
-  const [valorStr, setValorStr] = useState<string>('1150');
-  // Substitui vírgula por ponto para parsing adequado do JS
-  const valor = parseFloat(valorStr.replace(/\./g, '').replace(',', '.')) || 0;
+  const [valorStr, setValorStr] = useState<string>('1.150,00');
+  // Pega apenas os dígitos para calcular o valor real (evita problemas com '.' ou espaços)
+  const valor = (parseInt(valorStr.replace(/\D/g, ''), 10) || 0) / 100;
 
-  // Aceita números e a primeira vírgula digitada
+  // Máscara estilo "caixa eletrônico" (autoformatação enquanto digita)
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value;
+    const val = e.target.value;
+    const digits = val.replace(/\D/g, '');
     
-    // Remove qualquer caractere que não seja número ou vírgula/ponto
-    val = val.replace(/[^0-9.,]/g, '');
-    // Troca pontos por vírgulas para padronizar visualização
-    val = val.replace(/\./g, ',');
-    
-    // Garante apenas uma vírgula
-    const parts = val.split(',');
-    if (parts.length > 2) {
-      val = parts[0] + ',' + parts.slice(1).join('');
+    if (!digits) {
+      setValorStr('0,00');
+      return;
     }
     
-    setValorStr(val);
+    const numericVal = parseInt(digits, 10) / 100;
+    
+    const formatted = new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(numericVal);
+    
+    setValorStr(formatted);
   };
 
   return (
