@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Check, Calculator, Mail, Lock } from 'lucide-react';
+import { Copy, Check, Calculator, Mail, Lock, Eye, EyeOff, LogOut } from 'lucide-react';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -10,7 +10,7 @@ export default function App() {
       {!isLoggedIn ? (
         <LoginScreen key="login" onLogin={() => setIsLoggedIn(true)} />
       ) : (
-        <CalculatorScreen key="calculator" />
+        <CalculatorScreen key="calculator" onLogout={() => setIsLoggedIn(false)} />
       )}
     </AnimatePresence>
   );
@@ -20,6 +20,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,30 +47,15 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
       <div className="w-full h-full max-h-[700px] max-w-[380px] p-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-[30px] shadow-[0_0_20px_rgba(255,0,0,0.5)] flex flex-col items-center text-center text-white relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-red-500/20 rounded-full blur-[50px] pointer-events-none"></div>
 
-        <div className="mt-8 mb-6 w-full flex justify-center relative z-10 flex-col items-center">
-          {/* Logo da Prefeitura / Mumbuca Exchange */}
-          <div className="w-full flex justify-center items-center min-h-[100px]">
-             {/* A imagem logo.png precisa ser colocada na pasta /public no GitHub */}
-             <img 
-               src="/logo1.png" 
-               alt="Prefeitura de Maricá - Mumbuca Exchange" 
-               className="w-[90%] max-w-[300px] object-contain drop-shadow-[0_0_15px_rgba(255,0,0,0.3)]" 
-               onError={(e) => {
-                 // Fallback estilizado caso a imagem ainda não tenha sido enviada
-                 e.currentTarget.style.display = 'none';
-                 const fallback = document.getElementById('logo-fallback');
-                 if (fallback) fallback.style.display = 'block';
-               }} 
-             />
-             <div id="logo-fallback" style={{ display: 'none' }} className="text-red-500 font-bold text-2xl uppercase tracking-widest text-center">
-                PREFEITURA DE MARICÁ<br/>
-                <span className="text-white text-xl">MUMBUCA EXCHANGE</span>
-             </div>
+        <div className="mt-6 mb-2 w-full flex justify-center relative z-10 flex-col items-center">
+          <div className="text-red-500 font-bold text-xl uppercase tracking-widest text-center mb-2">
+             PREFEITURA DE MARICÁ<br/>
+             <span className="text-white text-lg">MUMBUCA EXCHANGE</span>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="w-full flex-1 flex flex-col relative z-10">
-          <div className="space-y-4 mb-4">
+          <div className="space-y-4 mb-2">
             <div className="flex flex-col text-left">
               <label className="text-[0.75rem] text-[#ffcccc] ml-2 mb-1 uppercase tracking-wide">E-mail Google</label>
               <div className="flex items-center bg-[#1a0000]/50 border border-red-500/50 rounded-[15px] p-3 focus-within:ring-2 focus-within:ring-red-500/50 transition-all">
@@ -90,13 +76,24 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
               <div className="flex items-center bg-[#1a0000]/50 border border-red-500/50 rounded-[15px] p-3 focus-within:ring-2 focus-within:ring-red-500/50 transition-all">
                 <Lock size={18} className="text-red-400 mr-3" />
                 <input 
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="bg-transparent text-white text-[1rem] outline-none w-full"
                   required
                 />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-red-400 hover:text-red-300 ml-2 p-1"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              <div className="flex justify-between items-center mt-2 px-1">
+                <button type="button" className="text-red-400 text-[0.65rem] hover:text-red-300 uppercase font-semibold tracking-wider">Esqueceu a senha?</button>
+                <button type="button" className="text-red-400 text-[0.65rem] hover:text-red-300 uppercase font-semibold tracking-wider">Criar conta</button>
               </div>
             </div>
             
@@ -108,6 +105,14 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
                 {error}
               </motion.p>
             )}
+          </div>
+
+          <div className="w-full flex justify-center items-center min-h-[90px] my-2">
+             <img 
+               src="/logo1.png" 
+               alt="Brasão de Maricá" 
+               className="w-[60%] max-w-[200px] object-contain drop-shadow-[0_0_15px_rgba(255,0,0,0.3)]" 
+             />
           </div>
 
           <button 
@@ -126,7 +131,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
   );
 }
 
-function CalculatorScreen() {
+function CalculatorScreen({ onLogout }: { onLogout: () => void }) {
   const [valorStr, setValorStr] = useState<string>('1150');
   // Substitui vírgula por ponto para parsing adequado do JS
   const valor = parseFloat(valorStr.replace(/\./g, '').replace(',', '.')) || 0;
@@ -163,7 +168,14 @@ function CalculatorScreen() {
         {/* Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-red-500/20 rounded-full blur-[50px] pointer-events-none"></div>
 
-        <div className="flex items-center gap-2 mb-2 relative z-10 text-red-500">
+        <button 
+          onClick={onLogout}
+          className="absolute top-4 right-4 p-2 text-red-500/70 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all z-20"
+        >
+          <LogOut size={20} />
+        </button>
+
+        <div className="flex items-center gap-2 mb-2 mt-4 relative z-10 text-red-500">
           <Calculator size={24} />
         </div>
         
