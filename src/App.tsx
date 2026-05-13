@@ -146,7 +146,10 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
              <img 
                src="/logo1.png" 
                alt="Brasão de Maricá" 
-               className="w-[60%] max-w-[200px] object-contain drop-shadow-[0_0_15px_rgba(255,0,0,0.3)]" 
+               className="w-[60%] max-w-[200px] object-contain drop-shadow-[0_0_15px_rgba(255,0,0,0.3)]"
+               onError={(e) => {
+                 e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/4/4b/Bras%C3%A3o_de_Maric%C3%A1.png";
+               }} 
              />
           </div>
 
