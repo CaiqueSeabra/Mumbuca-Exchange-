@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Calculadora Mumbuca Cash",
+  "description": "Calculadora para antecipação de saldo Mumbuca.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
